@@ -51,7 +51,6 @@ class GnssScanner(
 
   private val rangeRates = ConcurrentHashMap<Pair<Constellation, Int>, RangeReading>()
 
-  // Chipset constant, avoids a binder call per status epoch.
   private val measurementsSupported by lazy {
     runCatching { lm?.gnssCapabilities?.hasMeasurements() != false }.getOrDefault(true)
   }
@@ -86,8 +85,6 @@ class GnssScanner(
     object : GnssStatus.Callback() {
       override fun onSatelliteStatusChanged(status: GnssStatus) {
         val now = SystemClock.elapsedRealtime()
-        // The HAL also lists satellites it is merely searching for, reporting C/N0 as 0 with no
-        // flag to tell them apart. Only tracked satellites are received signals; keep those.
         val raw =
           List(status.satelliteCount) { i ->
             RawSatelliteEntry(
@@ -110,9 +107,6 @@ class GnssScanner(
           raw.groupBy { it.constellation to it.svid }.values.map { group ->
             val bandsByCn0 = group.sortedByDescending { it.cn0DbHz }
             val bestBand = bandsByCn0.first()
-
-            // Elevation/azimuth stay at 0 until the receiver knows the orbit; exactly (0°, 0°)
-            // from a live satellite means "not computed yet", not a bearing.
             val geometryKnown = bestBand.elevationDeg != 0f || bestBand.azimuthDeg != 0f
             val phoneLoc = lastLocation
             val subPoint =
@@ -216,7 +210,6 @@ class GnssScanner(
   fun start(scope: CoroutineScope) {
     maybeRegister()
     if (heartbeatJob?.isActive != true) {
-      // Also retries registration, a permission granted after service start never re-invokes start().
       heartbeatJob =
         scope.repeatEvery(GNSS_HEARTBEAT_MS) {
           maybeRegister()
@@ -246,7 +239,6 @@ class GnssScanner(
       ?.onFailure { Log.w(TAG, "Failed to engage GPS", it) }
   }
 
-  // Synchronized with maybeRegister so an in-flight registration can't complete after teardown.
   @Synchronized
   fun stop() {
     stopped = true
@@ -264,7 +256,6 @@ class GnssScanner(
   private fun publishNow() {
     val status = status()
     val now = SystemClock.elapsedRealtime()
-    // Gate on callback recency. A silent chip's last list would otherwise republish as live forever.
     val fresh = now - lastStatusAtMs <= GNSS_STALENESS_MS
     val signals = if (status == ScannerStatus.OK && fresh) lastSatellites else emptyList()
     _state.value = GnssSourceState(signals, status, readiness.compute(status == ScannerStatus.OK, signals.isNotEmpty(), now))

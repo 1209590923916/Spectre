@@ -249,9 +249,6 @@ class RFMonitorService : Service() {
         gnssScanner.state,
         activeTransport
       ) { cell, wifi, bt, gnss, active ->
-        // A registered cell or associated AP is only the live data connection when it matches
-        // the active transport, so clear isConnected on the standby radio (e.g. cellular while
-        // connected over Wi-Fi).
         val cellSignals =
           if (active == DataTransport.CELLULAR) {
             cell.signals
@@ -361,7 +358,6 @@ class RFMonitorService : Service() {
       .setContentIntent(pi)
       .setDeleteIntent(shutdownPi)
       .apply {
-        // The notification can't be swiped away before Android 13
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
           setContentText("Swipe to close app")
         } else {

@@ -89,8 +89,6 @@ fun DashboardScreen(
   var expandedDetailKey by rememberSaveable(expanded) { mutableStateOf<String?>(null) }
   var detailAnchorIndex by rememberSaveable(expanded) { mutableIntStateOf(-1) }
   val detailState = rememberDetailListState()
-  // Expanding a row freezes the Bluetooth list order, an explicit filter/sort edit should release
-  // that freeze so the change takes effect instead of showing the stale frozen snapshot.
   LaunchedEffect(
     detailState.btSort,
     detailState.btManufacturerFilter,
@@ -386,7 +384,7 @@ fun DashboardScreen(
   if (showLocationDialog) {
     EnableDialog(
       title = "Enable Location",
-      body = "Android requires precise location enabled for apps to scan cellular, Wi-Fi, Bluetooth, and GNSS.",
+      body = "Android requires precise location enabled to scan cellular, Wi-Fi, Bluetooth, and GNSS.",
       confirmLabel = "Open Settings",
       onConfirm = {
         showLocationDialog = false

@@ -18,9 +18,6 @@ object CelestialGeometry {
     val altitudeAboveEarthM: Double
   )
 
-  // Computes a satellite's sub-satellite point (the spot on the ground directly below it):
-  // solves the line-of-sight slant range to a sphere at the satellite's orbital radius in
-  // WGS84 ECEF, then converts the resulting satellite position back to latitude/longitude.
   fun compute(
     phoneLatDeg: Double,
     phoneLonDeg: Double,

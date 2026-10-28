@@ -62,8 +62,6 @@ class GattInspector(
     context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
   private val adapter: BluetoothAdapter? get() = manager?.adapter
 
-  // GATT callbacks arrive on binder threads and only one operation may be in flight at once, so
-  // the connect/read/write state machine is serialized onto the main thread through this handler.
   private val mainHandler = Handler(Looper.getMainLooper())
 
   @Volatile private var gatt: BluetoothGatt? = null
@@ -211,8 +209,6 @@ class GattInspector(
 
     s.callbackObj = cb
 
-    // Prefer the scan's live device: it carries the peer's real LE address type, so random
-    // MACs connect instead of 133-ing (getRemoteDevice would assume a public address).
     val target = liveDevice ?: runCatching { a.getRemoteDevice(mac) }.getOrNull()
     if (target == null) {
       s.finishWithError(null, "Invalid MAC")
@@ -344,7 +340,6 @@ class GattInspector(
     private var services: List<BluetoothGattService> = emptyList()
     private val queue = ArrayDeque<BluetoothGattCharacteristic>()
 
-    // Keyed by instance (identity), so same-UUID characteristics keep distinct values.
     private val values = mutableMapOf<BluetoothGattCharacteristic, String>()
     private var totalReads = 0
     private val doneReads get() = totalReads - queue.size
@@ -392,7 +387,6 @@ class GattInspector(
     ) {
       if (cancelled || completed) return
       val expected = queue.firstOrNull() ?: return
-      // A late response for an already-timed-out read must not disarm the in-flight read's timeout.
       if (expected !== characteristic && expected.uuid != characteristic.uuid) return
       disarmTimeout()
       queue.removeFirst()

@@ -1,6 +1,5 @@
 package dev.thomasbuilds.spectre.scanner.cellular
 
-// *ARFCN to downlink frequency (MHz) per 3GPP TS 38.104 (NR), 36.101 (LTE), 25.101 (WCDMA), 45.005 (GSM).
 internal object CellChannels {
   fun label(mhz: Double): String = "%.1f MHz".format(mhz)
 
@@ -67,27 +66,24 @@ internal object CellChannels {
       Band(68586, 68935, 617.0)
     )
 
-  // Each band's FDL_offset (TS 25.101 Table 5.1) is folded into dlLowMhz; the rare 100 kHz-raster
-  // "additional channels" are intentionally unmapped.
   private val UMTS_BANDS =
     listOf(
-      Band(712, 763, 877.4), // XIX
-      Band(1162, 1513, 1807.4), // III
-      Band(1537, 1738, 2112.4), // IV
-      Band(2937, 3088, 927.4), // VIII
-      Band(3712, 3787, 1478.4), // XI
-      Band(4357, 4458, 871.4), // V (VI is a subrange)
-      Band(9237, 9387, 1847.4), // IX
-      Band(9662, 9938, 1932.4), // II
-      Band(10562, 10838, 2112.4) // I
+      Band(712, 763, 877.4),
+      Band(1162, 1513, 1807.4),
+      Band(1537, 1738, 2112.4),
+      Band(2937, 3088, 927.4),
+      Band(3712, 3787, 1478.4),
+      Band(4357, 4458, 871.4),
+      Band(9237, 9387, 1847.4),
+      Band(9662, 9938, 1932.4),
+      Band(10562, 10838, 2112.4)
     )
 
-  // 512..810 overlaps DCS-1800 and PCS-1900. Resolved as DCS-1800, the near-universal modern allocation.
   private val GSM_BANDS =
     listOf(
-      Band(0, 124, 935.0), // E-GSM ARFCN 0 + P-GSM
-      Band(128, 251, 869.2), // GSM-850
-      Band(512, 885, 1805.2), // DCS-1800
-      Band(975, 1023, 925.2) // E-GSM extension
+      Band(0, 124, 935.0),
+      Band(128, 251, 869.2),
+      Band(512, 885, 1805.2),
+      Band(975, 1023, 925.2)
     )
 }

@@ -37,12 +37,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import dev.thomasbuilds.spectre.analysis.Distance
+import dev.thomasbuilds.spectre.foxhunt.FoxhuntTech
 import dev.thomasbuilds.spectre.model.BluetoothSignal
 import dev.thomasbuilds.spectre.scanner.ble.GattCharacteristicInfo
 import dev.thomasbuilds.spectre.scanner.ble.GattInspection
 import dev.thomasbuilds.spectre.scanner.ble.GattInspector
 import dev.thomasbuilds.spectre.scanner.ble.GattServiceInfo
 import dev.thomasbuilds.spectre.scanner.ble.shortenUuid
+import dev.thomasbuilds.spectre.ui.FoxhuntButton
 
 @Composable
 internal fun BluetoothExpandable(
@@ -80,9 +82,9 @@ internal fun BluetoothExpandable(
     details = device.details,
     dimmed = device.isStale,
     footer = {
-      if (device.isConnectable || inspection !is GattInspection.Idle) {
-        Spacer(Modifier.height(8.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
+      Spacer(Modifier.height(8.dp))
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        if (device.isConnectable || inspection !is GattInspection.Idle) {
           OutlinedButton(
             onClick = {
               inspection = GattInspection.Connecting
@@ -118,61 +120,68 @@ internal fun BluetoothExpandable(
             )
           }
           Spacer(Modifier.width(8.dp))
-          when (val s = inspection) {
-            is GattInspection.Failed -> {
-              Text(
-                s.reason,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.error
-              )
-            }
-
-            is GattInspection.Done -> {
-              val readCount =
-                s.services.sumOf { svc ->
-                  svc.characteristics.count { it.readValue != null }
-                }
-              Text(
-                "${s.services.size} services · $readCount values",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-              )
-              IconButton(
-                onClick = {
-                  val text =
-                    formatGattInspection(
-                      deviceName = device.name,
-                      deviceMac = device.mac,
-                      services = s.services,
-                      advertisementHex = device.advertisementHex
-                    )
-                  copyToClipboard(context, "GATT inspection", text)
-                  Toast
-                    .makeText(
-                      context,
-                      "GATT output copied",
-                      Toast.LENGTH_SHORT
-                    ).show()
-                },
-                modifier = Modifier.size(32.dp)
-              ) {
-                Icon(
-                  imageVector = Icons.Rounded.ContentCopy,
-                  contentDescription = "Copy GATT output",
-                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                  modifier = Modifier.size(16.dp)
-                )
-              }
-            }
-
-            else -> {}
+        }
+        FoxhuntButton(
+          tech = FoxhuntTech.BLE,
+          address = device.mac,
+          name = device.name.takeIf { it.isNotBlank() }
+        )
+        Spacer(Modifier.width(8.dp))
+        when (val s = inspection) {
+          is GattInspection.Failed -> {
+            Text(
+              s.reason,
+              style = MaterialTheme.typography.bodySmall,
+              color = MaterialTheme.colorScheme.error
+            )
           }
+
+          is GattInspection.Done -> {
+            val readCount =
+              s.services.sumOf { svc ->
+                svc.characteristics.count { it.readValue != null }
+              }
+            Text(
+              "${s.services.size} services · $readCount values",
+              style = MaterialTheme.typography.bodySmall,
+              color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            IconButton(
+              onClick = {
+                val text =
+                  formatGattInspection(
+                    deviceName = device.name,
+                    deviceMac = device.mac,
+                    services = s.services,
+                    advertisementHex = device.advertisementHex
+                  )
+                copyToClipboard(context, "GATT inspection", text)
+                Toast
+                  .makeText(
+                    context,
+                    "GATT output copied",
+                    Toast.LENGTH_SHORT
+                  )
+                  .show()
+              },
+              modifier = Modifier.size(32.dp)
+            ) {
+              Icon(
+                imageVector = Icons.Rounded.ContentCopy,
+                contentDescription = "Copy GATT output",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(16.dp)
+              )
+            }
+          }
+
+          else -> {}
         }
-        val done = inspection as? GattInspection.Done
-        if (done != null) {
-          Spacer(Modifier.height(6.dp))
-          GattServicesView(done.services, onWrite = { svc, ch -> writeTarget = svc to ch })
-        }
+      }
+      val done = inspection as? GattInspection.Done
+      if (done != null) {
+        Spacer(Modifier.height(6.dp))
+        GattServicesView(done.services, onWrite = { svc, ch -> writeTarget = svc to ch })
       }
     }
   )

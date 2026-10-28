@@ -3,9 +3,6 @@ plugins {
   alias(libs.plugins.kotlin.compose)
 }
 
-val commit = (findProperty("commit") as String?)?.takeIf { it.isNotBlank() }
-val debugVersionSuffix = if (commit != null) "-debug-$commit" else "-debug"
-
 android {
   namespace = "dev.thomasbuilds.spectre"
   compileSdk {
@@ -13,7 +10,7 @@ android {
   }
 
   defaultConfig {
-    applicationId = "dev.thomasbuilds.spectre"
+    applicationId = "zero.spectre"
     minSdk = 31
     targetSdk = 37
     versionCode = 103999
@@ -22,10 +19,6 @@ android {
   }
 
   buildTypes {
-    debug {
-      applicationIdSuffix = ".debug"
-      versionNameSuffix = debugVersionSuffix
-    }
     release {
       isMinifyEnabled = true
       isShrinkResources = true

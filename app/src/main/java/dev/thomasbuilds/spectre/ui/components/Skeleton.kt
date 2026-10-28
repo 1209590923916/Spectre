@@ -30,7 +30,6 @@ fun SkeletonBar(
       Modifier
         .width(width)
         .height(height)
-        // Read the animated alpha in the draw phase so the shimmer never recomposes anything.
         .graphicsLayer { this.alpha = alpha.value }
         .background(
           MaterialTheme.colorScheme.onSurface.copy(alpha = 0.18f),

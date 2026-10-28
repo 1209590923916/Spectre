@@ -45,6 +45,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.thomasbuilds.spectre.analysis.Distance
+import dev.thomasbuilds.spectre.foxhunt.FoxhuntTech
 import dev.thomasbuilds.spectre.model.CellSignal
 import dev.thomasbuilds.spectre.model.DetailEntry
 import dev.thomasbuilds.spectre.model.DistanceConfidence
@@ -52,6 +53,7 @@ import dev.thomasbuilds.spectre.model.GnssSignal
 import dev.thomasbuilds.spectre.model.ScanState
 import dev.thomasbuilds.spectre.model.WifiSignal
 import dev.thomasbuilds.spectre.scanner.ble.BleAdvertiser
+import dev.thomasbuilds.spectre.ui.FoxhuntButton
 import dev.thomasbuilds.spectre.ui.SignalSource
 
 private fun titleFor(source: SignalSource): String =
@@ -130,12 +132,19 @@ fun LazyListScope.detailListSection(
                 header = { WifiHeader(w) },
                 details = w.details,
                 dimmed = w.isStale,
-                footer =
-                  if (w.isConnected) {
-                    { WifiScanButton(onClick = onOpenRecon) }
-                  } else {
-                    null
+                footer = {
+                  Row(verticalAlignment = Alignment.CenterVertically) {
+                    FoxhuntButton(
+                      tech = FoxhuntTech.WIFI,
+                      address = w.bssid.ifEmpty { w.ssid },
+                      name = w.ssid.takeIf { it.isNotBlank() }
+                    )
+                    if (w.isConnected) {
+                      Spacer(Modifier.width(8.dp))
+                      WifiScanButton(onClick = onOpenRecon)
+                    }
                   }
+                }
               )
             }
           }

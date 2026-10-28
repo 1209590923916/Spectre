@@ -106,7 +106,6 @@ class BluetoothScanner(
       onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
 
-  // One serial lane for all scheduled work, so publishNow never runs concurrently with itself.
   @OptIn(ExperimentalCoroutinesApi::class)
   private val serialLane = Dispatchers.Default.limitedParallelism(1)
   private var publishJob: Job? = null
@@ -244,7 +243,6 @@ class BluetoothScanner(
       buildList {
         add(DetailEntry("Name", name))
         add(DetailEntry("MAC", mac))
-        // A random BLE address has no real OUI, so skip those we can detect (API 35+) to avoid a coincidental mislabel.
         if (addressType != BluetoothDevice.ADDRESS_TYPE_RANDOM) {
           oui.vendor(mac)?.let { add(DetailEntry("Vendor", it)) }
         }
@@ -347,9 +345,6 @@ class BluetoothScanner(
     publishNow()
   }
 
-  // Scan-state transitions are reached from the serial lane, start() on the caller's thread, and
-  // binder callbacks (onScanFailed), so the check-then-set on `scanning` needs synchronization to
-  // not start the scanner twice with the same callback, which fails with ALREADY_STARTED.
   @Synchronized
   @SuppressLint("MissingPermission")
   private fun startScan() {
@@ -368,9 +363,6 @@ class BluetoothScanner(
         .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
         .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
         .apply {
-          // Default scanning is legacy-only; opt into extended + all PHYs where the radio
-          // supports it so BLE 5 extended, long-range (Coded PHY), and anonymous advertisers
-          // are also seen, not just classic 4.2 advertisements.
           if (a.isLeExtendedAdvertisingSupported) {
             setLegacy(false)
             setPhy(ScanSettings.PHY_LE_ALL_SUPPORTED)

@@ -24,7 +24,6 @@ object GattValueDecoder {
     }
   }
 
-  // Devices commonly NUL-pad fixed-size string characteristics.
   private fun ByteArray.asTrimmedString(): String = toString(Charsets.UTF_8).trim { it.isWhitespace() || it == '\u0000' }
 
   private fun ByteArray.asUtf8(): String = asTrimmedString().ifEmpty { preview() }

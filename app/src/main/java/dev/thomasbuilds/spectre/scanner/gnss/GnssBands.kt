@@ -19,7 +19,6 @@ internal object GnssBands {
 
   private const val TOLERANCE_MHZ = 10.0
 
-  // List order is match precedence where tolerance windows overlap (E5b before E5).
   private val bands =
     mapOf(
       Constellation.GPS to listOf(1575.42 to "L1", 1227.6 to "L2", 1176.45 to "L5"),

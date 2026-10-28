@@ -111,8 +111,6 @@ class BleAdvertiser(
     minor: Int,
     measuredPower: Int
   ): ByteArray {
-    // Apple iBeacon payload: type 0x02, length 0x15, 16-byte UUID, major, minor, then the
-    // 1-byte measured power (RSSI at 1 m). The caller wraps this in Apple's company id.
     val buf = ByteBuffer.allocate(23)
     buf.put(0x02)
     buf.put(0x15)

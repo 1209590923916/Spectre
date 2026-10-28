@@ -14,9 +14,6 @@ object ExposureCalculator {
   private const val MIN_DETECTABLE_MW = 1e-15
 
   private fun cellularPowerMw(cells: List<CellSignal>): Double {
-    // Co-channel cells (a serving cell plus its neighbors, or one channel seen by both SIMs)
-    // are the same physical transmission, so count only the strongest per channel; cells with
-    // no known channel can't be deduped and are summed individually.
     val (keyed, unkeyed) = cells.partition { it.channelKey != null }
     val keyedMw =
       keyed

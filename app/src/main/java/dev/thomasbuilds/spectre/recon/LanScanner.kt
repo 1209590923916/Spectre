@@ -61,7 +61,6 @@ class LanScanner(
   @Volatile var localAccessBlocked: Boolean = false
     private set
 
-  // 1024 in-flight cap keeps the kernel out of ENOBUFS while saturating the wire.
   private val probeGate = Semaphore(permits = 1024)
 
   private fun isVpnLikeInterface(name: String): Boolean {
@@ -231,8 +230,6 @@ class LanScanner(
     channelFlow {
       localAccessBlocked = false
       val ips = enumerateSubnet(subnet) ?: return@channelFlow
-      // Pin the scan to the local non-VPN network so LAN probes can't leak into a VPN tunnel and
-      // get wildcard-answered for every address (process-scoped; restored in finally).
       val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
       val localNet = LocalNetwork.pick(context)
       val previousBound = cm?.boundNetworkForProcess
