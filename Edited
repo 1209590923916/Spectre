@@ -1,0 +1,18 @@
+New Folder: app/src/main/java/dev/thomasbuilds/spectre/foxhunt
+New files: 
+app/src/main/java/dev/thomasbuilds/spectre/ui/FoxhuntScreen.kt
+app/src/main/java/dev/thomasbuilds/spectre/foxhunt/FoxhuntScanner.kt
+app/src/main/java/dev/thomasbuilds/spectre/foxhunt/FoxhuntTracker.kt
+app/src/main/java/dev/thomasbuilds/spectre/ui/PermissionsScreen.kt
+
+
+
+
+Edited Files:
+app/src/main/java/dev/thomasbuilds/spectre/ui/SettingsScreen.kt
+app/src/main/java/dev/thomasbuilds/spectre/MainActivity.kt
+app/src/main/java/dev/thomasbuilds/spectre/settings/Settings.kt
+app/src/main/java/dev/thomasbuilds/spectre/ui/components/GattView.kt
+app/src/main/java/dev/thomasbuilds/spectre/ui/components/Skeleton.kt
+app/src/main/java/dev/thomasbuilds/spectre/ui/components/DetailList.kt
+app/src/main/java/dev/thomasbuilds/spectre/ui/DashboardScreen.kt
